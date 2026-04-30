@@ -1,5 +1,63 @@
 {
   "app": {
     "title": "KidsTune"
+  },
+  "landing": {
+    "title": "A song made just for your child",
+    "subtitle": "Every melody is unique — your kid's name appears in the lyrics, making every listen extra special.",
+    "cta": "Create a song",
+    "theme": {
+      "animals": "Animals 🐾",
+      "fantasy": "Fantasy ✨",
+      "birthday": "Birthday 🎂"
+    }
+  },
+  "criar": {
+    "title": "Create your song",
+    "form": {
+      "theme": {
+        "label": "Theme",
+        "placeholder": "Choose a theme"
+      },
+      "kidName": {
+        "label": "Kid's name (optional)",
+        "placeholder": "Ex: Lara"
+      },
+      "voice": {
+        "label": "Voice",
+        "placeholder": "Choose a voice"
+      },
+      "style": {
+        "label": "Style",
+        "placeholder": "Choose a style"
+      }
+    },
+    "submit": "Generate song",
+    "generating": "We're creating a song full of love for {{name}}...",
+    "comingSoon": "This feature is coming soon! Check back shortly.",
+    "customKeyword": "Custom keyword"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "language": "Language"
+  },
+  "voice": {
+    "feminine": "Feminine",
+    "masculine": "Masculine",
+    "instrumental": "Instrumental"
+  },
+  "style": {
+    "lullaby": "Lullaby",
+    "pop": "Pop",
+    "folk": "Folk"
+  },
+  "themeOption": {
+    "animals": "Animals",
+    "fantasy": "Fantasy",
+    "butterflies": "Butterflies",
+    "adventure": "Adventure",
+    "bedtime": "Bedtime",
+    "custom": "Custom"
   }
 }
