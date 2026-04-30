@@ -16,10 +16,12 @@ jest.mock("@google/generative-ai", () => ({
 
 // Mock firebase-admin for free-quota
 jest.mock("firebase-admin", () => {
-  const mockTransaction = {
-    get: jest.fn(),
-    set: jest.fn(),
-    update: jest.fn(),
+  const mockTimestamp = {
+    now: jest.fn().mockReturnValue({
+      toMillis: jest.fn().mockReturnValue(Date.now()),
+      seconds: Math.floor(Date.now() / 1000),
+      nanoseconds: 0,
+    }),
   };
 
   const mockDocRef = {
@@ -35,20 +37,16 @@ jest.mock("firebase-admin", () => {
   const mockRunTransaction = jest.fn();
 
   return {
+    initializeApp: jest.fn(),
     firestore: jest.fn().mockReturnValue({
       collection: mockCollection,
       runTransaction: mockRunTransaction,
+      Timestamp: mockTimestamp,
     }),
+    // Static property access
     firestore: {
-      Timestamp: {
-        now: jest.fn().mockReturnValue({
-          toMillis: jest.fn().mockReturnValue(Date.now()),
-          seconds: Math.floor(Date.now() / 1000),
-          nanoseconds: 0,
-        }),
-      },
+      Timestamp: mockTimestamp,
     },
-    initializeApp: jest.fn(),
   };
 });
 
@@ -87,16 +85,18 @@ describe("POST /api/generate", () => {
     process.env.GEMINI_API_KEY = "test-key";
   });
 
+  afterEach(() => {
+    delete process.env.GEMINI_API_KEY;
+  });
+
   test("happy path — returns 200 with lyrics", async () => {
-    const mockLyrics = `
-(Refrão)
+    const mockLyrics = `(Refrão)
 Sorrir, sorrir, é tão bom sorrir,
 Com o sol a brilhar, vamos todos cantar!
 
 (Estrofe 1)
 No jardim da alegria, a brincar,
-Pássaros a voar, flor a desabrochar...
-    `.trim();
+Pássaros a voar, flor a desabrochar...`;
 
     // Setup Gemini mock to return lyrics
     const { GoogleGenerativeAI } = require("@google/generative-ai");

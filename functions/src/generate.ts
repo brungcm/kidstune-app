@@ -1,6 +1,5 @@
 import { Request, Response } from "firebase-functions/v2/https";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { defineSecret } from "firebase-functions/params";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -28,13 +27,17 @@ interface GenerateResponse {
 const BLOCKED_KEYWORDS = [
   "violencia", "violência", "arma", "morte", "morrer", "matar",
   "violence", "weapon", "gun", "death", "die", "kill",
-  "drogas", "drogas", "drugs",
+  "drogas", "drugs",
   "sexo", "sex",
   "terror", "terrorism",
 ];
 
+function normalize(text: string): string {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 function containsBlockedKeyword(text: string): boolean {
-  const lower = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const lower = normalize(text);
   return BLOCKED_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
@@ -139,8 +142,6 @@ Return ONLY the song lyrics, no introductions, explanations, or extra formatting
 // Gemini call with retry
 // ---------------------------------------------------------------------------
 
-const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
-
 async function callGemini(prompt: string, apiKey: string): Promise<string> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -242,8 +243,8 @@ export async function generateHandler(req: Request, res: Response): Promise<void
     // Build prompt
     const prompt = buildPrompt({ theme, kidName, voice, style, locale });
 
-    // Get API key from Firebase Secrets
-    const apiKey = process.env.GEMINI_API_KEY || GEMINI_API_KEY.value();
+    // Get API key from environment (injected by Firebase Secrets at runtime)
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.error("GEMINI_API_KEY not configured");
       res.status(500).json({ error: "config_error", userMessage: "Serviço de IA não configurado." });
