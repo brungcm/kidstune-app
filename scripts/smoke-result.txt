@@ -1,0 +1,3 @@
+Smoke test pending — deploy needs to run from container with Firebase credentials.
+Run: bash scripts/deploy.sh
+From: /home/user/environment/kidstune-app-10e0e17
