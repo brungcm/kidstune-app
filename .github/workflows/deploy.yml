@@ -1,0 +1,66 @@
+# =============================================================================
+# KidsTune — Firebase Deploy Workflow
+# =============================================================================
+# Deploys to Firebase Hosting + Functions on every push to `main`.
+#
+# ⚠️  SECRETS REQUIRED (set manually in GitHub repo settings):
+#   - FIREBASE_SERVICE_ACCOUNT: JSON content of the Firebase service account key
+#     (the same as /home/user/.agent/firebase-service-account.json locally)
+#   - GEMINI_API_KEY: Google Gemini API key for lyrics generation
+#
+# If these secrets are not set, the workflow will fail gracefully with a warning.
+# =============================================================================
+
+name: Deploy to Firebase
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy Hosting + Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+
+      - name: Build frontend
+        run: npm run build -w frontend
+
+      - name: Build functions
+        run: npm run build -w functions
+
+      - name: Deploy to Firebase
+        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: kidstune-dev
+          channelId: live
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+      - name: Warn about missing secrets
+        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT == '' }}
+        run: |
+          echo "::warning::FIREBASE_SERVICE_ACCOUNT secret is not set."
+          echo "::warning::Deploy skipped. To enable automatic deployment:"
+          echo "::warning::  1. Go to Settings → Secrets and variables → Actions"
+          echo "::warning::  2. Add FIREBASE_SERVICE_ACCOUNT with the service account JSON"
+          echo "::warning::  3. Add GEMINI_API_KEY with your Gemini API key"
+          echo "::warning::  4. Push again to main to trigger deployment"
