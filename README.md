@@ -38,15 +38,27 @@ open http://localhost:5000
 kidstune-app/
 ├── frontend/          # Vite + React 19 + TailwindCSS
 │   └── src/
-│       ├── locales/   # Traduções EN + pt-BR
+│       ├── auth.ts         # Firebase Auth + Google provider + useAuth hook
+│       ├── firebase.ts     # Firebase config + emulator connection
+│       ├── useCredits.ts   # Real-time Firestore credits listener
+│       ├── pages/
+│       │   ├── LandingPage.tsx
+│       │   ├── CreatePage.tsx
+│       │   ├── MinhasMusicasPage.tsx   # User's songs (protected)
+│       │   ├── ComprarPage.tsx         # Buy credits (mock Stripe)
+│       │   └── MockStripeCheckoutPage.tsx  # Mock checkout UI
 │       └── ...
 ├── functions/         # Firebase Functions (Node 20)
 │   └── src/
-│       ├── index.ts       # Entrypoint — exporta `api`, `generate`, `freeQuota`
-│       ├── health.ts      # GET /health → { ok, version }
-│       ├── generate.ts    # POST /api/generate → Gemini + letra
-│       ├── free-quota.ts  # POST /api/free-quota → Firestore quota
-│       └── __tests__/     # Testes unitários (jest)
+│       ├── index.ts           # Entrypoint — exports all endpoints
+│       ├── health.ts          # GET /health → { ok, version }
+│       ├── generate.ts        # POST /api/generate → Gemini + letra
+│       ├── free-quota.ts      # POST /api/free-quota → Firestore quota
+│       ├── checkout.ts        # POST /api/checkout → mock checkout URL
+│       ├── webhook.ts         # POST /api/webhook/stripe → mock webhook
+│       ├── pricing.ts         # Pricing config (single source of truth)
+│       ├── firestore-init.ts  # User doc creation + credit helpers
+│       └── __tests__/         # Testes unitários (jest)
 ├── firebase.json      # Config dos emulators
 ├── Makefile           # Comandos: install, dev, smoke, clean
 └── package.json       # Monorepo root (npm workspaces)
@@ -68,6 +80,31 @@ kidstune-app/
 ## 🌐 Variáveis de ambiente
 
 Veja `.env.example` para a lista completa. Nenhuma chave real está versionada.
+
+---
+
+## 💳 Stripe (Mock Mode)
+
+Por padrão, o KidsTune roda em **mock mode** (`STRIPE_MODE=mock`). Nenhuma chamada real ao Stripe é feita.
+
+### Fluxo mock:
+1. Usuário clica "Comprar" em `/comprar`
+2. Frontend chama `POST /api/checkout` → retorna `{ checkoutUrl: "/mock-stripe-checkout?session=...&credits=N&pack=..." }`
+3. Usuário é redirecionado para `/mock-stripe-checkout` (UI estilo Stripe)
+4. Após 2s, chama `POST /api/webhook/stripe` com payload simulado
+5. Webhook incrementa créditos no Firestore e redireciona para `/minhas-musicas`
+
+### Como ligar Stripe real depois
+
+Quando quiser migrar para Stripe real, siga estes 5 passos:
+
+1. **Set `STRIPE_MODE=real`** no `.env` e no Firebase config
+2. **Set `STRIPE_SECRET_KEY`** como Firebase secret ou env var
+3. **Remova o `throw`** em `functions/src/webhook.ts` no path real (substitua pela lógica real de verificação de assinatura)
+4. **Deploy** as functions atualizadas
+5. **Atualize `.env.example`** com as novas variáveis (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY)
+
+> O arquivo `functions/src/pricing.ts` é o ÚNICO ponto de configuração de preços e créditos — ele não precisa ser alterado na migração.
 
 ---
 
