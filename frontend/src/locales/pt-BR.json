@@ -1,5 +1,63 @@
 {
   "app": {
     "title": "KidsTune"
+  },
+  "landing": {
+    "title": "Uma música feita para o seu filho",
+    "subtitle": "Cada melodia é única — o nome do seu filho aparece na letra, tornando cada audição ainda mais especial.",
+    "cta": "Criar uma música",
+    "theme": {
+      "animals": "Animais 🐾",
+      "fantasy": "Fantasia ✨",
+      "birthday": "Aniversário 🎂"
+    }
+  },
+  "criar": {
+    "title": "Crie sua música",
+    "form": {
+      "theme": {
+        "label": "Tema",
+        "placeholder": "Escolha um tema"
+      },
+      "kidName": {
+        "label": "Nome da criança (opcional)",
+        "placeholder": "Ex: Lara"
+      },
+      "voice": {
+        "label": "Voz",
+        "placeholder": "Escolha uma voz"
+      },
+      "style": {
+        "label": "Estilo",
+        "placeholder": "Escolha um estilo"
+      }
+    },
+    "submit": "Gerar música",
+    "generating": "Estamos criando uma música cheia de carinho para {{name}}...",
+    "comingSoon": "Esta funcionalidade estará disponível em breve! Volte em breve.",
+    "customKeyword": "Palavra-chave personalizada"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado. Tente novamente.",
+    "language": "Idioma"
+  },
+  "voice": {
+    "feminine": "Feminina",
+    "masculine": "Masculina",
+    "instrumental": "Instrumental"
+  },
+  "style": {
+    "lullaby": "Ninar",
+    "pop": "Pop",
+    "folk": "Folk"
+  },
+  "themeOption": {
+    "animals": "Animais",
+    "fantasy": "Fantasia",
+    "butterflies": "Borboletas",
+    "adventure": "Aventura",
+    "bedtime": "Hora de dormir",
+    "custom": "Personalizado"
   }
 }

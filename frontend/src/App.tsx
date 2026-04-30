@@ -1,18 +1,18 @@
-import { useTranslation } from "react-i18next";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import CreatePage from "./pages/CreatePage";
+import LanguageFooter from "./components/LanguageFooter";
 
-function App() {
-  const { t } = useTranslation();
-
+export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-sky-100 to-purple-100">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold text-purple-600">
-          {t("app.title")}
-        </h1>
-        <p className="mt-4 text-lg text-gray-600">Coming soon</p>
+    <BrowserRouter>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/criar" element={<CreatePage />} />
+        </Routes>
+        <LanguageFooter />
       </div>
-    </main>
+    </BrowserRouter>
   );
 }
-
-export default App;
