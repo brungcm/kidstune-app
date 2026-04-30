@@ -42,8 +42,11 @@ kidstune-app/
 │       └── ...
 ├── functions/         # Firebase Functions (Node 20)
 │   └── src/
-│       ├── index.ts   # Entrypoint — exporta `api`
-│       └── health.ts  # GET /health → { ok, version }
+│       ├── index.ts       # Entrypoint — exporta `api`, `generate`, `freeQuota`
+│       ├── health.ts      # GET /health → { ok, version }
+│       ├── generate.ts    # POST /api/generate → Gemini + letra
+│       ├── free-quota.ts  # POST /api/free-quota → Firestore quota
+│       └── __tests__/     # Testes unitários (jest)
 ├── firebase.json      # Config dos emulators
 ├── Makefile           # Comandos: install, dev, smoke, clean
 └── package.json       # Monorepo root (npm workspaces)
@@ -65,6 +68,32 @@ kidstune-app/
 ## 🌐 Variáveis de ambiente
 
 Veja `.env.example` para a lista completa. Nenhuma chave real está versionada.
+
+---
+
+## 🤖 Configurando o Gemini
+
+Para habilitar a geração de músicas com IA:
+
+```bash
+# 1. Configure a chave da API Gemini via Firebase Functions secrets
+firebase functions:config:set gemini.apikey="<sua-chave-aqui>"
+
+# 2. Inicie os emuladores localmente
+firebase emulators:start
+```
+
+A chave é lida **exclusivamente no servidor** através de `process.env.GEMINI_API_KEY` (configurada via Firebase Secrets). Nenhuma chave de API é exposta ao frontend.
+
+### ⚠️ Content Guardrails
+
+O sistema de geração de conteúdo aplica as seguintes proteções:
+
+- **Palavras bloqueadas**: violência, violência, arma, morte, morrer, matar, violence, weapon, gun, death, die, kill, drogas, drugs, sexo, sex, terror, terrorism
+- **Sanitização de nome**: `kidName` é truncado em 30 caracteres, remoção de HTML tags, apenas alfanumérico + espaços + acentos
+- **Validação de tema**: tema é verificado contra a lista de palavras bloqueadas antes de chamar o Gemini
+- **Retry automático**: 1 tentativa extra em caso de timeout ou erro 5xx do Gemini
+- **Fallback de áudio**: retorna `audioUrl: null` indicando ao frontend que use Web Speech API do browser
 
 ---
 
