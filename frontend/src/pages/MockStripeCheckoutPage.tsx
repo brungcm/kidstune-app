@@ -47,7 +47,7 @@ export default function MockStripeCheckoutPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            uid: user.uid,
+            uid: user?.uid,
             creditsAdded: credits,
             sessionId,
           }),
