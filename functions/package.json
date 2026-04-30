@@ -1,0 +1,22 @@
+{
+  "name": "kidstune-functions",
+  "private": true,
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
