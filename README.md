@@ -2,6 +2,8 @@
 
 **Música infantil personalizada com IA — para os pequenos dançarem do jeitinho deles.**
 
+🌐 **Live**: https://kidstune-dev.firebaseapp.com/
+
 KidsTune é um web app B2C que gera músicas infantis personalizadas usando IA. Bilíngue (EN + pt-BR), construído com Vite + React 19 + TypeScript + TailwindCSS no frontend e Firebase Functions (Node 20) no backend.
 
 ---
@@ -34,7 +36,7 @@ open http://localhost:5000
 
 ## 📁 Estrutura do projeto
 
-```
+```text
 kidstune-app/
 ├── frontend/          # Vite + React 19 + TailwindCSS
 │   └── src/
@@ -59,8 +61,8 @@ kidstune-app/
 │       ├── pricing.ts         # Pricing config (single source of truth)
 │       ├── firestore-init.ts  # User doc creation + credit helpers
 │       └── __tests__/         # Testes unitários (jest)
-├── firebase.json      # Config dos emulators
-├── Makefile           # Comandos: install, dev, smoke, clean
+├── firebase.json      # Config dos emulators + hosting + functions rewrites
+├── Makefile           # Comandos: install, dev, smoke, clean, deploy
 └── package.json       # Monorepo root (npm workspaces)
 ```
 
@@ -73,7 +75,35 @@ kidstune-app/
 | `make install` | Instala dependências de todos os workspaces   |
 | `make dev`     | Sobe emulators + frontend em paralelo          |
 | `make smoke`   | Valida se build e config estão ok              |
+| `make deploy`  | Build + deploy para Firebase (hosting + functions) |
 | `make clean`   | Remove `dist/`, `lib/` e `node_modules`        |
+
+---
+
+## 🌐 Deploy
+
+O deploy automatizado usa Firebase Hosting + Functions.
+
+### Manual
+
+```bash
+make deploy
+```
+
+Isso executa o pipeline completo: `npm install` nos workspaces → build do frontend → build das functions → `firebase deploy --only hosting,functions`.
+
+> ⚠️ **Nota sobre Functions**: O deploy de Functions requer o plano **Blaze (pay-as-you-go)** do Firebase. Se o projeto estiver no plano Spark (gratuito), o deploy de functions falhará. Nesse caso, o `make deploy` faz fallback automaticamente para **hosting-only**. O frontend em `/api/*` ficará vazio até que o plano seja atualizado.
+
+### CI/CD (GitHub Actions)
+
+O workflow em `.github/workflows/deploy.yml` executa deploy automático em todo `push` para `main`.
+
+**⚠️ Para ativar, configure estes secrets no GitHub:**
+
+1. `FIREBASE_SERVICE_ACCOUNT` — conteúdo do JSON da service account do Firebase
+2. `GEMINI_API_KEY` — chave da API Gemini
+
+Vá em **Settings → Secrets and variables → Actions** e adicione os secrets acima.
 
 ---
 
@@ -88,6 +118,7 @@ Veja `.env.example` para a lista completa. Nenhuma chave real está versionada.
 Por padrão, o KidsTune roda em **mock mode** (`STRIPE_MODE=mock`). Nenhuma chamada real ao Stripe é feita.
 
 ### Fluxo mock:
+
 1. Usuário clica "Comprar" em `/comprar`
 2. Frontend chama `POST /api/checkout` → retorna `{ checkoutUrl: "/mock-stripe-checkout?session=...&credits=N&pack=..." }`
 3. Usuário é redirecionado para `/mock-stripe-checkout` (UI estilo Stripe)
@@ -114,7 +145,7 @@ Para habilitar a geração de músicas com IA:
 
 ```bash
 # 1. Configure a chave da API Gemini via Firebase Functions secrets
-firebase functions:config:set gemini.apikey="<sua-chave-aqui>"
+firebase functions:secrets:set GEMINI_API_KEY
 
 # 2. Inicie os emuladores localmente
 firebase emulators:start
