@@ -1,7 +1,11 @@
+import * as admin from "firebase-admin";
 import { onRequest } from "firebase-functions/v2/https";
 import { healthHandler } from "./health";
 import { generateHandler } from "./generate";
 import { freeQuotaHandler } from "./free-quota";
+
+// Initialize Firebase Admin SDK (used by free-quota and other features)
+admin.initializeApp();
 
 // Health check endpoint
 export const api = onRequest(
