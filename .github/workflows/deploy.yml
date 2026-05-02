@@ -8,7 +8,11 @@
 #     (the same as /home/user/.agent/firebase-service-account.json locally)
 #   - GEMINI_API_KEY: Google Gemini API key for lyrics generation
 #
-# If these secrets are not set, the workflow will fail gracefully with a warning.
+# If these secrets are not set, the deploy step is skipped and a warning is
+# emitted. We hoist the secret check into a job-level `env:` block (using a
+# GitHub Actions expression) and reference `env.HAS_FIREBASE_SA` from each
+# step `if:` — referencing `secrets.X` directly inside step `if:` is rejected
+# by Actions with "Unrecognized named-value: secrets".
 # =============================================================================
 
 name: Deploy to Firebase
@@ -22,6 +26,8 @@ jobs:
     name: Deploy Hosting + Functions
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      HAS_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
 
     steps:
       - name: Checkout
@@ -45,7 +51,7 @@ jobs:
         run: npm run build -w functions
 
       - name: Deploy to Firebase
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+        if: env.HAS_FIREBASE_SA == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -56,7 +62,7 @@ jobs:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
 
       - name: Warn about missing secrets
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT == '' }}
+        if: env.HAS_FIREBASE_SA != 'true'
         run: |
           echo "::warning::FIREBASE_SERVICE_ACCOUNT secret is not set."
           echo "::warning::Deploy skipped. To enable automatic deployment:"
