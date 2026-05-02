@@ -1,4 +1,4 @@
-import { Request, Response } from "firebase-functions/v2/https";
+import { Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ export async function generateHandler(req: Request, res: Response): Promise<void
     }
 
     // Build prompt
-    const prompt = buildPrompt({ theme, kidName, voice, style, locale });
+    const prompt = buildPrompt({ theme, kidName: kidName ?? undefined, voice, style, locale });
 
     // Get API key from environment (injected by Firebase Secrets at runtime)
     const apiKey = process.env.GEMINI_API_KEY;

@@ -1,4 +1,4 @@
-import { Request, Response } from "firebase-functions/v2/https";
+import { Request, Response } from "express";
 
 export function healthHandler(_req: Request, res: Response): void {
   res.json({

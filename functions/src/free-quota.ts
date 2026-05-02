@@ -1,4 +1,4 @@
-import { Request, Response } from "firebase-functions/v2/https";
+import { Request, Response } from "express";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 
