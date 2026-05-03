@@ -45,10 +45,9 @@ cd "$ROOT_DIR"
 # ── Set secrets (if GEMINI_API_KEY is available) ────────────────────────────
 if [ -n "${GEMINI_API_KEY:-}" ]; then
   echo "[4/5] Setting Gemini API key secret..."
-  echo "$GEMINI_API_KEY" | firebase functions:secrets:set GEMINI_API_KEY --data-stdin --non-interactive 2>/dev/null || true
+  echo "$GEMINI_API_KEY" | firebase functions:secrets:set GEMINI_API_KEY --data-file - --non-interactive 2>/dev/null || true
   firebase functions:config:set stripe.mode="mock" --non-interactive 2>/dev/null || true
-else
-  echo "[4/5] GEMINI_API_KEY not set — skipping secrets"
+  else  echo "[4/5] GEMINI_API_KEY not set — skipping secrets"
 fi
 
 # ── Deploy ──────────────────────────────────────────────────────────────────
