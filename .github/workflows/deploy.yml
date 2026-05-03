@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    env:
+      HAS_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,7 +48,7 @@ jobs:
         run: npm run build -w functions
 
       - name: Deploy to Firebase
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+        if: env.HAS_FIREBASE_SA == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -56,7 +59,7 @@ jobs:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
 
       - name: Warn about missing secrets
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT == '' }}
+        if: env.HAS_FIREBASE_SA != 'true'
         run: |
           echo "::warning::FIREBASE_SERVICE_ACCOUNT secret is not set."
           echo "::warning::Deploy skipped. To enable automatic deployment:"

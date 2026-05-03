@@ -1,6 +1,6 @@
 import { generateHandler } from "../generate";
 import { freeQuotaHandler } from "../free-quota";
-import { Request, Response } from "firebase-functions/v2/https";
+import { Request, Response } from "express";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -36,17 +36,19 @@ jest.mock("firebase-admin", () => {
 
   const mockRunTransaction = jest.fn();
 
+  const firestoreMock = jest.fn().mockReturnValue({
+    collection: mockCollection,
+    runTransaction: mockRunTransaction,
+    Timestamp: mockTimestamp,
+  });
+
+  Object.assign(firestoreMock, {
+    Timestamp: mockTimestamp,
+  });
+
   return {
     initializeApp: jest.fn(),
-    firestore: jest.fn().mockReturnValue({
-      collection: mockCollection,
-      runTransaction: mockRunTransaction,
-      Timestamp: mockTimestamp,
-    }),
-    // Static property access
-    firestore: {
-      Timestamp: mockTimestamp,
-    },
+    firestore: firestoreMock,
   };
 });
 
@@ -63,6 +65,7 @@ function createMockReq(overrides: Partial<Request> = {}): Request {
     path: "/",
     url: "/",
     ip: "127.0.0.1",
+    rawBody: Buffer.from(""),
     ...overrides,
   } as unknown as Request;
 }

@@ -20,14 +20,24 @@ jest.mock("firebase-admin", () => {
     now: () => ({ toMillis: () => Date.now(), seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 }),
     serverTimestamp: () => ({ _methodName: "serverTimestamp" }),
   };
+  
+  const firestoreMock = jest.fn(() => ({
+    collection: mockCollection,
+    runTransaction: mockRunTransaction,
+  }));
+
+  const FieldValueMock = {
+    serverTimestamp: () => mockTimestamp.serverTimestamp(),
+  };
+
+  Object.assign(firestoreMock, {
+    FieldValue: FieldValueMock,
+    Timestamp: mockTimestamp,
+  });
+
   return {
     initializeApp: jest.fn(),
-    firestore: jest.fn(() => ({
-      collection: mockCollection,
-      runTransaction: mockRunTransaction,
-      FieldValue: { serverTimestamp: () => mockTimestamp.serverTimestamp() },
-      Timestamp: mockTimestamp,
-    })),
+    firestore: firestoreMock,
     credential: {
       applicationDefault: jest.fn(),
     },

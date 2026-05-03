@@ -1,4 +1,4 @@
-import { Request, Response } from "firebase-functions/v2/https";
+import { Request, Response } from "express";
 import * as crypto from "crypto";
 import { PRICING, isValidPack } from "./pricing";
 

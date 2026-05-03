@@ -4,7 +4,7 @@ dist/
 .firebase/
 *.log
 .DS_Store
-package-lock.json
+# package-lock.json (removed to unblock CI cache)
 frontend/tsconfig*.tsbuildinfo
 frontend/vite.config.d.ts
 frontend/vite.config.js
