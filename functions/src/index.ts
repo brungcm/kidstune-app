@@ -11,9 +11,6 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-// Initialize Firebase Admin SDK (used by free-quota and other features)
-admin.initializeApp();
-
 // Health check endpoint
 export const api = onRequest(
   { cors: true },
